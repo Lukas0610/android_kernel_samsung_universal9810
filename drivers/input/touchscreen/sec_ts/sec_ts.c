@@ -10,6 +10,8 @@
  * published by the Free Software Foundation.
  */
 
+#define SEC_TS_DEBUG 0
+
 struct sec_ts_data *tsp_info;
 
 #include "sec_ts.h"
@@ -1244,6 +1246,7 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 						ts->coord[t_id].p_x = ts->coord[t_id].x;
 						ts->coord[t_id].p_y = ts->coord[t_id].y;
 
+#if SEC_TS_DEBUG
 #if !defined(CONFIG_SAMSUNG_PRODUCT_SHIP)
 						input_info(true, &ts->client->dev,
 								"%s[P] tID:%d.%d x:%d y:%d z:%d major:%d minor:%d p:%s tc:%d type:%X noise:%x,%d\n",
@@ -1262,9 +1265,11 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 								ts->coord[t_id].ttype, ts->touch_noise_status,
 								ts->external_noise_mode);
 #endif
+#endif
 					} else if (ts->coord[t_id].action == SEC_TS_COORDINATE_ACTION_MOVE) {
 						if (pre_action == SEC_TS_COORDINATE_ACTION_NONE || pre_action == SEC_TS_COORDINATE_ACTION_RELEASE){
 							location_detect(ts, location, ts->coord[t_id].x, ts->coord[t_id].y);
+#if SEC_TS_DEBUG
 #if !defined(CONFIG_SAMSUNG_PRODUCT_SHIP)
 							input_info(true, &ts->client->dev,
 									"%s[M] tID:%d.%d x:%d y:%d z:%d major:%d minor:%d p:%s tc:%d type:%X noise:%x,%d\n",
@@ -1282,6 +1287,7 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 									location, ts->touch_count,
 									ts->coord[t_id].ttype, ts->touch_noise_status,
 									ts->external_noise_mode);
+#endif
 #endif
 						}
 
@@ -1323,9 +1329,11 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 							|| (ts->coord[t_id].action == SEC_TS_COORDINATE_ACTION_MOVE)) {
 
 						if (ts->coord[t_id].ttype != pre_ttype) {
+#if SEC_TS_DEBUG
 							input_info(true, &ts->client->dev, "%s : tID:%d ttype(%x->%x)\n",
 									__func__, ts->coord[t_id].id,
 									pre_ttype, ts->coord[t_id].ttype);
+#endif
 						}
 					}
 
@@ -1355,11 +1363,13 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 				ts->scrub_y = (p_gesture_status->gesture_data_2 << 4)
 							| (p_gesture_status->gesture_data_3 & 0x0F);
 
+#if SEC_TS_DEBUG
 #ifdef CONFIG_SAMSUNG_PRODUCT_SHIP
 				input_info(true, &ts->client->dev, "%s: AOD: %d\n", __func__, ts->scrub_id);
 #else
 				input_info(true, &ts->client->dev, "%s: AOD: %d, %d, %d\n",
 						__func__, ts->scrub_id, ts->scrub_x, ts->scrub_y);
+#endif
 #endif
 				input_report_key(ts->input_dev, KEY_BLACK_UI_GESTURE, 1);
 				ts->all_aod_tap_count++;
@@ -1370,11 +1380,13 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 							| (p_gesture_status->gesture_data_3 >> 4);
 				ts->scrub_y = (p_gesture_status->gesture_data_2 << 4)
 							| (p_gesture_status->gesture_data_3 & 0x0F);
+#if SEC_TS_DEBUG
 #ifdef CONFIG_SAMSUNG_PRODUCT_SHIP
 				input_info(true, &ts->client->dev, "%s: SINGLE TAP: %d\n", __func__, ts->scrub_id);
 #else
 				input_info(true, &ts->client->dev, "%s: SINGLE TAP: %d, %d, %d\n",
 						__func__, ts->scrub_id, ts->scrub_x, ts->scrub_y);
+#endif
 #endif
 				input_report_key(ts->input_dev, KEY_BLACK_UI_GESTURE, 1);
 				break;
@@ -1419,11 +1431,13 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 				ts->scrub_y = (p_gesture_status->gesture_data_2 << 4)
 							| (p_gesture_status->gesture_data_3 & 0x0F);
 
+#if SEC_TS_DEBUG
 #ifdef CONFIG_SAMSUNG_PRODUCT_SHIP
 				input_info(true, &ts->client->dev, "%s: FORCE: %d\n", __func__, ts->scrub_id);
 #else
 				input_info(true, &ts->client->dev, "%s: FORCE: %d, %d, %d\n",
 								__func__, ts->scrub_id, ts->scrub_x, ts->scrub_y);
+#endif
 #endif
 				break;
 			}
