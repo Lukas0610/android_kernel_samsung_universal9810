@@ -4761,7 +4761,7 @@ static void process_adv_report(struct hci_dev *hdev, u8 type, bdaddr_t *bdaddr,
 	}
 
 	if (!ext_adv && len > HCI_MAX_AD_LENGTH) {
-		bt_dev_err_ratelimited(hdev, "legacy adv larger than 31 bytes");
+		BT_ERR_RATELIMITED("legacy adv larger than 31 bytes");
 		return;
 	}
 
