@@ -24,6 +24,7 @@
 #include <soc/samsung/cal-if.h>
 #include <soc/samsung/ect_parser.h>
 #include <soc/samsung/exynos-cpu_hotplug.h>
+#include <soc/samsung/exynos-soc-config.h>
 
 #include "exynos-acme.h"
 
@@ -1093,6 +1094,38 @@ static __init int init_domain(struct exynos_cpufreq_domain *domain,
 	if (!of_property_read_u32(dn, "max-freq", &val))
 		domain->max_usable_freq = min(domain->max_freq, val);
 #endif
+
+#ifdef EXYNOS_ACME_MANUAL_CPUFREQ
+	if (domain->id == 0) {
+		#ifdef EXYNOS_ACME_CL0_MIN_FREQ
+			domain->min_freq = EXYNOS_ACME_CL0_MIN_FREQ;
+		#endif // EXYNOS_ACME_CL0_MIN_FREQ
+
+		#ifdef EXYNOS_ACME_CL0_MAX_FREQ
+			#ifndef CONFIG_EXYNOS_HOTPLUG_GOVERNOR
+				domain->max_freq = EXYNOS_ACME_CL0_MAX_FREQ;
+			#endif // CONFIG_EXYNOS_HOTPLUG_GOVERNOR
+
+			#ifdef CONFIG_SEC_PM
+				domain->max_usable_freq = EXYNOS_ACME_CL0_MAX_FREQ;
+			#endif // CONFIG_SEC_PM
+		#endif // EXYNOS_ACME_CL0_MAX_FREQ
+	} else if (domain->id == 1) {
+		#ifdef EXYNOS_ACME_CL1_MIN_FREQ
+			domain->min_freq = EXYNOS_ACME_CL1_MIN_FREQ;
+		#endif // EXYNOS_ACME_CL1_MIN_FREQ
+
+		#ifdef EXYNOS_ACME_CL1_MAX_FREQ
+			#ifndef CONFIG_EXYNOS_HOTPLUG_GOVERNOR
+				domain->max_freq = EXYNOS_ACME_CL1_MAX_FREQ;
+			#endif // CONFIG_EXYNOS_HOTPLUG_GOVERNOR
+
+			#ifdef CONFIG_SEC_PM
+				domain->max_usable_freq = EXYNOS_ACME_CL1_MAX_FREQ;
+			#endif // CONFIG_SEC_PM
+		#endif // EXYNOS_ACME_CL1_MAX_FREQ
+	}
+#endif // EXYNOS_ACME_MANUAL_CPUFREQ
 
 	domain->boot_freq = cal_dfs_get_boot_freq(domain->cal_id);
 	domain->resume_freq = cal_dfs_get_resume_freq(domain->cal_id);

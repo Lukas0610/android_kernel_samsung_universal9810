@@ -22,6 +22,7 @@
 
 #include <soc/samsung/exynos-cpu_hotplug.h>
 #include <soc/samsung/cal-if.h>
+#include <soc/samsung/exynos-soc-config.h>
 
 #include <trace/events/power.h>
 
@@ -1088,6 +1089,7 @@ static int __init exynos_hpgov_parse_dt(void)
 
 	if (of_property_read_u32(np, "cal-id", &exynos_hpgov.cal_id))
 		goto exit;
+
 	max_freq = (int)cal_dfs_get_max_freq(exynos_hpgov.cal_id);
 	if (!max_freq)
 		goto exit;
@@ -1106,6 +1108,14 @@ static int __init exynos_hpgov_parse_dt(void)
 	exynos_hpgov.maxfreq_table[QUAD] = min(freq, max_freq);
 
 	exynos_hpgov.maxfreq_table[DISABLE] = exynos_hpgov.maxfreq_table[QUAD];
+
+#ifdef EXYNOS_HOTPLUG_MANUAL_CPUFREQ
+	exynos_hpgov.maxfreq_table[SINGLE] = EXYNOS_HOTPLUG_FREQ_SINGLE;
+	exynos_hpgov.maxfreq_table[DUAL] = EXYNOS_HOTPLUG_FREQ_DUAL;
+	exynos_hpgov.maxfreq_table[TRIPLE] = EXYNOS_HOTPLUG_FREQ_TRIPLE;
+	exynos_hpgov.maxfreq_table[QUAD] = EXYNOS_HOTPLUG_FREQ_QUAD;
+	exynos_hpgov.maxfreq_table[DISABLE] = EXYNOS_HOTPLUG_FREQ_DISABLE;
+#endif
 
 	for (i = 0; i <= QUAD; i++)
 		pr_info("HP_GOV: mode %d: max_freq = %d\n",
