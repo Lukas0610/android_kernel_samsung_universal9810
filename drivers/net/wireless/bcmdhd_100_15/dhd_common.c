@@ -113,12 +113,7 @@
 #ifdef DHD_LOG_PRINT_RATE_LIMIT
 int log_print_threshold = 0;
 #endif /* DHD_LOG_PRINT_RATE_LIMIT */
-int dhd_msg_level = DHD_ERROR_VAL | DHD_FWLOG_VAL | DHD_EVENT_VAL
-	/* For CUSTOMER_HW4 do not enable DHD_IOVAR_MEM_VAL by default */
-#if !defined(CUSTOMER_HW4)
-	| DHD_IOVAR_MEM_VAL
-#endif /* !defined(CUSTOMER_HW4) */
-	| DHD_PKT_MON_VAL;
+int dhd_msg_level = 0;
 
 #if defined(WL_WIRELESS_EXT)
 #include <wl_iw.h>
