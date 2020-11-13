@@ -222,7 +222,7 @@ VPATH		:= $(srctree)$(if $(KBUILD_EXTMOD),:$(KBUILD_EXTMOD))
 export srctree objtree VPATH
 
 # Set kernel extraversion to the current git commit hash + repository status
-EXTRAVERSION = -$(shell git -C "$(srctree)" describe --tags --long --always --dirty=".dirty" --broken=".broken")
+EXTRAVERSION := -$(shell git -C "$(srctree)" describe --tags --long --always --dirty=".dirty" --broken=".broken")
 
 # SUBARCH tells the usermode build what the underlying arch is.  That is set
 # first, and if a usermode build is happening, the "ARCH=um" on the command
