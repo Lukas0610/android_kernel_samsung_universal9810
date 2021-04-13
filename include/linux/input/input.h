@@ -7,7 +7,7 @@
 
 #ifdef CONFIG_SCHED_HMP
 #define USE_HMP_BOOST
-#elif defined CONFIG_SCHED_EHMP
+#elif defined CONFIG_SCHED_EMS
 #define USE_EHMP_BOOST
 #endif
 
@@ -40,21 +40,6 @@
 	} \
 }
 
-#define set_qos_dma_latency(req, pm_qos_class, value) { \
-    if(!value){ \
-		if (pm_qos_request_active(req)) {\
-			pr_booster("[Input Booster2] %s      pm_qos_dma_latency_update_request : %d\n", glGage, value); \
-			pm_qos_update_request(req, value); \
-		} else { \
-			pr_booster("[Input Booster2] %s      pm_qos_dma_latency_add_request : %d\n", glGage, value); \
-			pm_qos_add_request(req, pm_qos_class, value); \
-		} \
-	} else { \
-		pr_booster("[Input Booster2] %s      remove_qos_dma_latency\n", glGage); \
-		remove_qos(req); \
-	} \
-}
-
 #define remove_qos(req) { \
 	if (pm_qos_request_active(req)) \
 		pm_qos_remove_request(req); \
@@ -71,10 +56,14 @@
 	} \
 }
 #elif defined USE_EHMP_BOOST
-#include <linux/ehmp.h>
+#include <linux/ems_service.h>
 
 static DEFINE_MUTEX(input_lock);
 int hmp_boost_value = INIT_ZERO;
+
+static struct kpp kpp_ta;
+static struct kpp kpp_fg;
+
 #define set_hmp(enable) { \
 	mutex_lock(&input_lock); \
 	if (enable != current_hmp_boost) { \
@@ -84,12 +73,14 @@ int hmp_boost_value = INIT_ZERO;
 			printk("[Input Booster2] ******      ERROR : set_ehmp unexpected enable request happened ( %s )\n", __FUNCTION__); \
 		} else { \
 			pr_booster("[Input Booster2] ******      set_ehmp : %d ( %s )\n", enable, __FUNCTION__); \
-			request_kernel_prefer_perf(STUNE_TOPAPP, enable); \
-			request_kernel_prefer_perf(STUNE_FOREGROUND, enable); \
 			if (enable) { \
 				hmp_boost_value++; \
+				kpp_request(STUNE_TOPAPP, &kpp_ta, 1); \
+				kpp_request(STUNE_FOREGROUND, &kpp_fg, 1); \
 			} else { \
 				hmp_boost_value--; \
+				kpp_request(STUNE_TOPAPP, &kpp_ta, 0); \
+				kpp_request(STUNE_FOREGROUND, &kpp_fg, 0); \
 			} \
 			current_hmp_boost = enable; \
 		} \
@@ -113,7 +104,6 @@ int hmp_boost_value = INIT_ZERO;
 	set_qos(&_this->kfc_qos, PM_QOS_CLUSTER0_FREQ_MIN/*PM_QOS_KFC_FREQ_MIN*/, _this->param[_this->index].kfc_freq);  \
 	set_qos(&_this->mif_qos, PM_QOS_BUS_THROUGHPUT, _this->param[_this->index].mif_freq);  \
 	set_qos(&_this->int_qos, PM_QOS_DEVICE_THROUGHPUT, _this->param[_this->index].int_freq);  \
-	set_qos_dma_latency(&_this->dms_latency_qos, PM_QOS_CPU_DMA_LATENCY, _this->param[_this->index].dma_latency);  \
 }
 #define REMOVE_BOOSTER  { \
 	int value = INPUT_BOOSTER_NULL; \

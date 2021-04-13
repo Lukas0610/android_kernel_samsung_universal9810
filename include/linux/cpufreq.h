@@ -120,7 +120,18 @@ struct cpufreq_policy {
 	bool			fast_switch_possible;
 	bool			fast_switch_enabled;
 
-	 /* Cached frequency lookup from cpufreq_driver_resolve_freq. */
+	/*
+	 * Preferred average time interval between consecutive invocations of
+	 * the driver to set the frequency for this policy.  To be set by the
+	 * scaling driver (0, which is the default, means no preference).
+	 */
+	unsigned int		up_transition_delay_us;
+	unsigned int		down_transition_delay_us;
+
+	/* Boost switch for tasks with p->in_iowait set */
+	bool iowait_boost_enable;
+
+	/* Cached frequency lookup from cpufreq_driver_resolve_freq. */
 	unsigned int cached_target_freq;
 	int cached_resolved_idx;
 
@@ -485,6 +496,7 @@ static inline unsigned long cpufreq_scale(unsigned long old, u_int div,
  * the ondemand governor will not work. All times here are in us (microseconds).
  */
 #define MIN_SAMPLING_RATE_RATIO		(2)
+#define LATENCY_MULTIPLIER		(1000)
 #define UP_LATENCY_MULTIPLIER		(50)
 #define DOWN_LATENCY_MULTIPLIER		(100)
 #define MIN_LATENCY_MULTIPLIER		(20)

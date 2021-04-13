@@ -37,6 +37,7 @@ config ARM64
 	select EDAC_SUPPORT
 	select FRAME_POINTER
 	select GENERIC_ALLOCATOR
+	select GENERIC_ARCH_TOPOLOGY
 	select GENERIC_CLOCKEVENTS
 	select GENERIC_CLOCKEVENTS_BROADCAST
 	select GENERIC_CPU_AUTOPROBE
@@ -125,7 +126,9 @@ config MMU
 	def_bool y
 
 config DEBUG_RODATA
-	def_bool y
+	bool "Make kernel text and rodata read-only"
+	help
+	  If in doubt, say Y
 
 config ARM64_PAGE_SHIFT
 	int
